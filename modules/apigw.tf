@@ -8,26 +8,26 @@ resource "aws_sns_topic_subscription" "rate_limit_alarm_email" {
   endpoint  = "okcnduka@gmail.com"
 }
 
-resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
-  alarm_name          = "RateLimitExceeded"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "BlockedRequests" #"RateBasedRuleMatchedRequests" #
-  namespace           = "AWS/WAFV2"
-  period              = "60"
-  statistic           = "Sum"
-  threshold           = "1"
-  alarm_description   = "Alarm when rate limit is exceeded"
-  actions_enabled     = true
-  alarm_actions       = [aws_sns_topic.rate_limit_alarm_topic.arn]
-  treat_missing_data  = "notBreaching"
-  dimensions = {
-    Rule = "YourRateBasedRuleID" ##########
-    WebACL = aws_wafv2_web_acl.rate_limit.id
-    Region = "us-east-1"
-    # Ensure these dimension names and values match your setup
-  }
-}
+# resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
+#   alarm_name          = "RateLimitExceeded"
+#   comparison_operator = "GreaterThanOrEqualToThreshold"
+#   evaluation_periods  = "1"
+#   metric_name         = "BlockedRequests" #"RateBasedRuleMatchedRequests" #
+#   namespace           = "AWS/WAFV2"
+#   period              = "60"
+#   statistic           = "Sum"
+#   threshold           = "1"
+#   alarm_description   = "Alarm when rate limit is exceeded"
+#   actions_enabled     = true
+#   alarm_actions       = [aws_sns_topic.rate_limit_alarm_topic.arn]
+#   treat_missing_data  = "notBreaching"
+#   dimensions = {
+#     Rule = "YourRateBasedRuleID" ##########
+#     WebACL = aws_wafv2_web_acl.rate_limit.id
+#     Region = "us-east-1"
+#     # Ensure these dimension names and values match your setup
+#   }
+# }
 ##########################################################################
 ## API Gateway
 ##########################################################################
