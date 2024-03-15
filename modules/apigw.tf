@@ -8,26 +8,30 @@ resource "aws_sns_topic_subscription" "rate_limit_alarm_email" {
   endpoint  = "okcnduka@gmail.com"
 }
 
-# resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
-#   alarm_name          = "RateLimitExceeded"
-#   comparison_operator = "GreaterThanOrEqualToThreshold"
-#   evaluation_periods  = "1"
-#   metric_name         = "BlockedRequests" #"RateBasedRuleMatchedRequests" #
-#   namespace           = "AWS/WAFV2"
-#   period              = "60"
-#   statistic           = "Sum"
-#   threshold           = "1"
-#   alarm_description   = "Alarm when rate limit is exceeded"
-#   actions_enabled     = true
-#   alarm_actions       = [aws_sns_topic.rate_limit_alarm_topic.arn]
-#   treat_missing_data  = "notBreaching"
+resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
+  alarm_name          = "RateLimitExceeded"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "BlockedRequests" #"RateBasedRuleMatchedRequests" #
+  namespace           = "AWS/WAFV2"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  alarm_description   = "Request rate limit is exceeded on an IP address"
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.rate_limit_alarm_topic.arn]
+  treat_missing_data  = "notBreaching"
+  dimensions = {
+    Rule = aws_wafv2_web_acl.rate_limit.name ##########
+    WebACL = aws_wafv2_web_acl.rate_limit.name
+    # Region = var.region #"us-east-1"
+    # Ensure these dimension names and values match your setup
+  }
 #   dimensions = {
-#     Rule = "YourRateBasedRuleID" ##########
-#     WebACL = aws_wafv2_web_acl.rate_limit.id
-#     Region = "us-east-1"
-#     # Ensure these dimension names and values match your setup
+#     MetricName = aws_wafv2_web_acl.rate_limit.rule[0].visibility_config[0].metric_name
+#     WebACL     = aws_wafv2_web_acl.rate_limit.name
 #   }
-# }
+}
 ##########################################################################
 ## API Gateway
 ##########################################################################
@@ -37,10 +41,6 @@ resource "aws_apigatewayv2_api" "http_api" {
   name          = "yahoo-http-api"
   protocol_type = "HTTP"
 }
-
-# resource "aws_api_gateway_rest_api" "rest_api" {
-#   name = "S3-Bucket-API"
-# }
 
 #Lambda integration
 resource "aws_apigatewayv2_integration" "integration" {
@@ -70,9 +70,9 @@ resource "aws_apigatewayv2_deployment" "deploy" {
   api_id      = aws_apigatewayv2_api.http_api.id
   description = "API deployment"
 
-  lifecycle {
-    create_before_destroy = true
-  }
+#   lifecycle {
+#     create_before_destroy = true
+#   }
 }
 
 #Default stage
@@ -83,8 +83,11 @@ resource "aws_apigatewayv2_stage" "stage" {
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_log.arn
     format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"requestTime\":\"$context.requestTime\",\"httpMethod\":\"$context.httpMethod\",\"status\":\"$context.status\",\"protocol\":\"$context.protocol\",\"responseLength\":\"$context.responseLength\"}"
-    #format = jsondecode({"requestID" : "$context.requestID", "IP" : "$context.identity.sourceIP", "httpMethod" : "$context.httpMethod", "routeKey" : "$context.routeKey", "status" : "$context.status"})
   }
+#   default_route_settings {
+#     throttling_burst_limit = 210
+#     throttling_rate_limit  = 1260 # 210 requests per minute (or per 10 minutes, adjust as needed)
+#   }
 }
 
 #CloudWatch logging
@@ -92,77 +95,3 @@ resource "aws_cloudwatch_log_group" "api_log" {
   name = "/aws/apigateway/fetchs3object"
   retention_in_days = 7
 }
-##################################
-# #API resource
-# resource "aws_api_gateway_rest_api" "api" {
-#   name = "S3ObjectAPI"
-# }
-
-# resource "aws_api_gateway_resource" "resource" {
-#   rest_api_id = aws_api_gateway_rest_api.api.id
-#   parent_id   = aws_api_gateway_rest_api.api.root_resource_id
-#   path_part   = "fetch"
-# }
-
-# resource "aws_api_gateway_method" "method" {
-#   rest_api_id   = aws_api_gateway_rest_api.api.id
-#   resource_id   = aws_api_gateway_resource.resource.id
-#   http_method   = "GET"
-#   authorization = "NONE"
-# }
-
-# resource "aws_api_gateway_integration" "integration" {
-#   rest_api_id = aws_api_gateway_rest_api.api.id
-#   resource_id = aws_api_gateway_resource.resource.id
-#   http_method = aws_api_gateway_method.method.http_method
-
-#   integration_http_method = "POST"
-#   type                    = "AWS_PROXY"
-#   uri                     = aws_lambda_function.latest.invoke_arn
-# }
-
-# resource "aws_api_gateway_deployment" "deployment" {
-#   depends_on = [
-#     aws_api_gateway_integration.integration,
-#   ]
-#   rest_api_id = aws_api_gateway_rest_api.api.id
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
-
-# # API Gateway Stage resource
-# resource "aws_api_gateway_stage" "stage" {
-#   deployment_id = aws_api_gateway_deployment.api_deployment.id
-#   rest_api_id   = aws_api_gateway_rest_api.api.id
-#   stage_name    = "prod"
-
-#   # Example of enabling logging and setting the log level
-#   access_log_settings {
-#     destination_arn = aws_cloudwatch_log_group.api_log.arn
-#     format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"requestTime\":\"$context.requestTime\",\"httpMethod\":\"$context.httpMethod\",\"status\":\"$context.status\",\"protocol\":\"$context.protocol\",\"responseLength\":\"$context.responseLength\"}"
-#   }
-
-#   # Adjust these values as needed for your specific requirements
-#   xray_tracing_enabled = true
-
-#   # Example of setting stage variables (optional)
-#   variables = {
-#     "environment" = "production"
-#   }
-# }
-
-# #CloudWatch logging
-# resource "aws_cloudwatch_log_group" "api_log" {
-#   name = "/aws/apigateway/S3ObjectAPI"
-#   retention_in_days = 7
-# }
-
-# #Lambda permissions
-# resource "aws_lambda_permission" "invoke" {
-#   statement_id  = "AllowExecutionFromAPIGateway"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.latest.function_name  #or ARN
-#   principal     = "apigateway.amazonaws.com"
-#   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
-# }

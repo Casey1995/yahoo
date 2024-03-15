@@ -21,7 +21,7 @@ resource "aws_lambda_function" "uploader" {
   function_name = "UploadToS3Every10Minutes"
   handler       = "objectUploader.lambda_handler"
   runtime       = "python3.9"
-  role          = aws_iam_role.lambda_execution_role.arn
+  role          = aws_iam_role.lambda_upload_role.arn
   filename      = "objectUp.zip"
   environment {
     variables = {
@@ -41,7 +41,7 @@ resource "aws_lambda_function" "latest" {
   function_name = "GetMostRecentS3Object"
   handler       = "latestFetcher.lambda_handler"
   runtime       = "python3.9"
-  role          = aws_iam_role.lambda_execution_role.arn
+  role          = aws_iam_role.lambda_fetch_role.arn
   filename      = "latest.zip"
   environment {
     variables = {

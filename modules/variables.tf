@@ -9,3 +9,6 @@ variable "str_application" {
 
 variable "map_tags" {
 }
+variable "region" {
+  default = "us-east-1"
+}
