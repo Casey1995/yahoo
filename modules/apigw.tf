@@ -12,7 +12,7 @@ resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
   alarm_name          = "RateLimitExceeded"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = "BlockedRequests" #"RateBasedRuleMatchedRequests" #
+  metric_name         = "BlockedRequests"
   namespace           = "AWS/WAFV2"
   period              = "300"
   statistic           = "Sum"
@@ -22,15 +22,9 @@ resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
   alarm_actions       = [aws_sns_topic.rate_limit_alarm_topic.arn]
   treat_missing_data  = "notBreaching"
   dimensions = {
-    Rule = aws_wafv2_web_acl.rate_limit.name ##########
+    Rule = aws_wafv2_web_acl.rate_limit.visibility_config[0].metric_name #"BlockedRequests"
     WebACL = aws_wafv2_web_acl.rate_limit.name
-    # Region = var.region #"us-east-1"
-    # Ensure these dimension names and values match your setup
   }
-#   dimensions = {
-#     MetricName = aws_wafv2_web_acl.rate_limit.rule[0].visibility_config[0].metric_name
-#     WebACL     = aws_wafv2_web_acl.rate_limit.name
-#   }
 }
 ##########################################################################
 ## API Gateway
@@ -54,7 +48,7 @@ resource "aws_apigatewayv2_integration" "integration" {
 resource "aws_lambda_permission" "invoke" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.latest.function_name #or arn
+  function_name = aws_lambda_function.latest.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
@@ -62,7 +56,7 @@ resource "aws_lambda_permission" "invoke" {
 #GET routes
 resource "aws_apigatewayv2_route" "default_route" {
   api_id    = aws_apigatewayv2_api.http_api.id
-  route_key = "$default" #"GET"  #Path to S3 objects
+  route_key = "$default"
   target    = "integrations/${aws_apigatewayv2_integration.integration.id}"
 }
 
@@ -84,10 +78,6 @@ resource "aws_apigatewayv2_stage" "stage" {
     destination_arn = aws_cloudwatch_log_group.api_log.arn
     format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"requestTime\":\"$context.requestTime\",\"httpMethod\":\"$context.httpMethod\",\"status\":\"$context.status\",\"protocol\":\"$context.protocol\",\"responseLength\":\"$context.responseLength\"}"
   }
-#   default_route_settings {
-#     throttling_burst_limit = 210
-#     throttling_rate_limit  = 1260 # 210 requests per minute (or per 10 minutes, adjust as needed)
-#   }
 }
 
 #CloudWatch logging
