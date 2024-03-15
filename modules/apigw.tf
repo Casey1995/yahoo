@@ -59,25 +59,3 @@ resource "aws_lambda_permission" "allow_api_gateway_to_call_recent_object" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
-
-# resource "aws_api_gateway_usage_plan" "api_usage_plan" {
-#   name        = "s3_object_fetcher_usage_plan"
-#   description = "Usage plan for the S3 Object Fetcher API"
-
-#   api_stages {
-#     api_id = aws_apigatewayv2_api.http_api.id
-#     stage  = aws_apigatewayv2_stage.default_stage.name
-#   }
-
-#   # Define the rate limit (requests per second) and burst capacity
-#   throttle_settings {
-#     burst_limit = 5
-#     rate_limit  = 10
-#   }
-  
-#   # Optionally, you can also define quota settings (e.g., requests per day/week/month)
-#   # quota_settings {
-#   #   limit  = 1000
-#   #   period = "DAY"
-#   # }
-# }

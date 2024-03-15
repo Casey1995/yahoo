@@ -2,25 +2,23 @@ resource "aws_s3_bucket" "yahoo_bucket" {
   bucket = "yahoo-bucket-03182024"
 }
 
-# resource "aws_s3_bucket_policy" "ssl_encrypt" {
-#     bucket = "${aws_s3_bucket.yahoo_bucket.id}"
-#     policy = <<EOF
-#     {
-#         "Version": "2012-10-17",
-#         "Statement" [
-#             "Effect": "Deny",
-#             "Principal": "*",
-#             "Action": "s3:PutObject",
-#             "Resource": "${aws_s3_bucket.yahoo_bucket.arn}/*",
-#             "Condition": {
-#                 "StringNotEquals": {
-#                     "s3:x-amz-server-side-encryption": "aws:kms"
-#                 }
-#             }
-#         ]
-#     }
-#     EOF
-# }
+resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+  bucket = aws_s3_bucket.yahoo_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.yahoo.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "versioning_example" {
+  bucket = aws_s3_bucket.yahoo_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
 
 resource "aws_s3_bucket_acl" "private" {
   depends_on = [aws_s3_bucket_ownership_controls.owner]

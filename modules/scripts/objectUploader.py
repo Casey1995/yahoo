@@ -1,94 +1,78 @@
-# import boto3
-# import os
-# import logging
-# from datetime import datetime
-# from cryptography.fernet import Fernet
-
-# # Configure logging
-# logger = logging.getLogger()
-# logger.setLevel(logging.INFO)
-
-# def lambda_handler(event, context):
-#     # Get environment variables
-#     bucket_name = os.environ['S3_BUCKET']
-#     kms_key_id = os.environ['KMS_KEY_ID']
-
-#     try:
-#         # Generate file content (replace with your actual generation logic)
-#         file_content = b"This is the content of my generated file."
-
-#         # Get timestamp 
-#         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-#         file_name = f"generated_file_{timestamp}.txt"
-
-#         # Encryption using KMS and Fernet
-#         kms_client = boto3.client('kms')
-#         response = kms_client.generate_data_key(KeyId=kms_key_id, KeySpec='AES_256')
-#         cipher_key = Fernet(response['Plaintext'])
-#         encrypted_content = cipher_key.encrypt(file_content)
-
-#         # Upload to S3
-#         s3 = boto3.client('s3')
-#         s3.put_object(
-#             Bucket=bucket_name,
-#             Key=file_name,
-#             Body=encrypted_content
-#         )
-
-#         logger.info(f'File {file_name} uploaded successfully') 
-#         return {
-#             'statusCode': 200,
-#             'message': f'File {file_name} uploaded successfully' 
-#         }
-
-#     except Exception as e:
-#         logger.error(f"An error occurred: {e}")
-#         return {
-#             'statusCode': 500,
-#             'message': 'An error occurred during file processing'
-#         }
-
-
-##########################################################################
 import boto3
 from datetime import datetime
 import os
-from cryptography.fernet import Fernet
+import json
+
+# Variables
+kms_key_id = os.environ['KMS_KEY_ID']
+s3_bucket_name = os.environ['S3_BUCKET']
 
 def lambda_handler(event, context):
-    # Your target S3 bucket and KMS key ID
-    bucket_name = os.environ['S3_BUCKET']
-    kms_key_id = os.environ['KMS_KEY_ID']  # The ARN or alias of the KMS key
+    data = 'Sensitive data. Do NOT SHARE!'
+    file_name_prefix = 'sensitive_data'
 
-    # Generate a file with a timestamp in the /tmp directory
-    #file_name = f"/tmp/file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    file_name = f"/tmp/yahoo_file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-    with open(file_name, 'w') as file:
-        file.write('This time: {current_time} will never come again')
+    result = create_encrypt_and_upload_file(file_name_prefix, data, kms_key_id, s3_bucket_name)
+    print(result)
+    return {
+        'statusCode': 200,
+        'body': json.dumps(result)
+    }
 
-    # Encryption using KMS and Fernet
-    kms_client = boto3.client('kms')
-    response = kms_client.generate_data_key(KeyId=kms_key_id, KeySpec='AES_256')
-    cipher_key = Fernet(response['Plaintext'])
-    encrypted_file = cipher_key.encrypt(file_name)
-
-    # Initialize the boto3 client
-    s3_client = boto3.client('s3')
-
-    # Upload the file to S3 with server-side encryption using KMS
+def create_encrypt_and_upload_file(file_name_prefix, data, kms_key_id, s3_bucket_name):
+    # Ensure the /tmp directory is used for Lambda or other restricted environments
+    file_name = f"{file_name_prefix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    file_path = f"/tmp/{file_name}"
+    
+    # Create and write data to the file
     try:
-        with open(file_name, 'rb') as file:
-            s3_client.upload_fileobj(
-                Fileobj=file,
-                Bucket=bucket_name,
-                Key=file_name.split('/')[-1],  # Remove the /tmp/ path
-                ExtraArgs={
-                    'ServerSideEncryption': 'aws:kms',
-                    'SSEKMSKeyId': kms_key_id
-                }
-            )
-        return f"File {file_name.split('/')[-1]} successfully uploaded and encrypted with KMS."
-    except Exception as e:
-        print(e)
-        return "Error uploading the file to S3."
+        with open(file_path, 'w') as file:
+            file.write(data)
+    except IOError as e:
+        return f"Error creating the file: {str(e)}"
+    
+    # Initialize the boto3 KMS client
+    kms_client = boto3.client('kms')
+    
+    # Read the content of the file
+    try:
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+    except IOError as e:
+        return f"Error reading the file before encryption: {str(e)}"
+    
+    # Encrypt the content using AWS KMS
+    try:
+        encrypted_data = kms_client.encrypt(
+            KeyId=kms_key_id,
+            Plaintext=file_content
+        )['CiphertextBlob']
+    except kms_client.exceptions.ClientError as e:
+        return f"Error encrypting the file: {str(e)}"
+    
+    # Write the encrypted content back to the file
+    try:
+        with open(file_path, 'wb') as file:
+            file.write(encrypted_data)
+    except IOError as e:
+        return f"Error writing the encrypted data to the file: {str(e)}"
+    
+    # Upload the encrypted file to S3
+    s3_client = boto3.client('s3')
+    try:
+        s3_client.upload_file(file_path, s3_bucket_name, file_name)
+    except s3_client.exceptions.ClientError as e:
+        return f"Error uploading the file to S3: {str(e)}"
+    
+    # Optionally, remove the file after upload if it's no longer needed locally
+    os.remove(file_path)
+
+    return f"File '{file_name}' has been successfully created, encrypted, and uploaded to '{s3_bucket_name}'."
+
+# # Variables
+# kms_key_id = os.environ['KMS_KEY_ID']
+# s3_bucket_name = os.environ['S3_BUCKET']
+# data = 'Sensitive data. Do NOT SHARE!'
+# file_name_prefix = 'sensitive_data'
+
+# result = create_encrypt_and_upload_file(file_name_prefix, data, kms_key_id, s3_bucket_name)
+# print(result)
