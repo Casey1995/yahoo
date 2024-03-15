@@ -1,3 +1,4 @@
+#SNS Topic for Notification
 resource "aws_sns_topic" "rate_limit_alarm_topic" {
   name = "rate-limit-alarm-topic"
 }
@@ -5,9 +6,10 @@ resource "aws_sns_topic" "rate_limit_alarm_topic" {
 resource "aws_sns_topic_subscription" "rate_limit_alarm_email" {
   topic_arn = aws_sns_topic.rate_limit_alarm_topic.arn
   protocol  = "email"
-  endpoint  = "okcnduka@gmail.com"
+  endpoint  = var.sns_endpoint #"okcnduka@gmail.com"
 }
 
+#CloudWatch Alarm for Rate Limit violation
 resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
   alarm_name          = "RateLimitExceeded"
   comparison_operator = "GreaterThanOrEqualToThreshold"
