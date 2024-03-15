@@ -15,5 +15,5 @@ variable "region" {
 }
 
 variable "sns_endpoint" {
-  default = "replave with a valid email aggress"
+  default = "replace with a valid email aggress"
 }

@@ -65,3 +65,4 @@ Apply: Apply the changes to set up your AWS environment.
 Destroy (Optional): Remove all resources created by Terraform.
 *    terraform destroy
         To successfully destroy all the resources. Ensure the S3 bucket is empty. Errors may occur when deleting S3 bucket with objects.
+

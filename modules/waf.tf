@@ -21,7 +21,7 @@ resource "aws_wafv2_web_acl" "rate_limit" {
 
     statement {
       rate_based_statement {
-        limit              = 210  #(Required) Limit on requests per 5 mins period for a single originating IP
+        limit              = 210
         aggregate_key_type = "IP"
         evaluation_window_sec = 600
       }

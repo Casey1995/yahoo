@@ -6,7 +6,7 @@ resource "aws_sns_topic" "rate_limit_alarm_topic" {
 resource "aws_sns_topic_subscription" "rate_limit_alarm_email" {
   topic_arn = aws_sns_topic.rate_limit_alarm_topic.arn
   protocol  = "email"
-  endpoint  = var.sns_endpoint #"okcnduka@gmail.com"
+  endpoint  = "okcnduka@gmail.com" #var.sns_endpoint #
 }
 
 #CloudWatch Alarm for Rate Limit violation
