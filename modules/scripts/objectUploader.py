@@ -8,7 +8,8 @@ kms_key_id = os.environ['KMS_KEY_ID']
 s3_bucket_name = os.environ['S3_BUCKET']
 
 def lambda_handler(event, context):
-    data = 'Sensitive data. Do NOT SHARE!'
+    data = "Sensitive data. DO NOT SHARE!"
+    data = f"{data}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     file_name_prefix = 'sensitive_data'
 
     result = create_encrypt_and_upload_file(file_name_prefix, data, kms_key_id, s3_bucket_name)

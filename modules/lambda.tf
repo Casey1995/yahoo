@@ -33,7 +33,7 @@ resource "aws_lambda_function" "uploader" {
 
 data "archive_file" "latest" {
   type        = "zip"
-  source_file = "latestFetcher.py"
+  source_dir = "../modules/scripts/fetcher"
   output_path = "latest.zip"
 }
 
