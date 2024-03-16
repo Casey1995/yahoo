@@ -19,15 +19,8 @@ resource "aws_cloudfront_distribution" "api_distribution" {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = aws_apigatewayv2_api.http_api.api_endpoint
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.api.id
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"  #Managed-CachingDisabled policy ID https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
     viewer_protocol_policy = "allow-all"
     min_ttl                = 0
     default_ttl            = 3600 
@@ -35,16 +28,11 @@ resource "aws_cloudfront_distribution" "api_distribution" {
   }
 
   price_class = "PriceClass_100"
-
   restrictions {
     geo_restriction {
       restriction_type = "whitelist"
       locations        = ["US", "CA", "GB"]
     }
-  }
-
-  tags = {
-    Environment = "production"
   }
 
   viewer_certificate {
@@ -53,8 +41,22 @@ resource "aws_cloudfront_distribution" "api_distribution" {
   web_acl_id = aws_wafv2_web_acl.rate_limit.arn
 
   depends_on = [ aws_apigatewayv2_api.http_api ]
+  tags = merge(var.map_tags, {"Name" = "CloudFront"})
 }
 
-resource "aws_cloudfront_origin_access_identity" "oai" {
-  comment = "OAI for API Gateway"
+resource "aws_cloudfront_origin_request_policy" "api" {
+  name    = "Origin-request-policy"
+  comment = "Origin request policy to include custom header"
+  cookies_config {
+    cookie_behavior = "none"
+  }
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+        items = ["${data.aws_secretsmanager_secret_version.current.secret_string}"]
+    }
+  }
+  query_strings_config {
+    query_string_behavior = "none"
+  }
 }

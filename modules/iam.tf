@@ -159,3 +159,80 @@ resource "aws_iam_role_policy_attachment" "fetch-attach" {
   role       = aws_iam_role.lambda_fetch_role.name
   policy_arn = aws_iam_policy.fetch_policy.arn
 }
+
+resource "aws_iam_role" "lambda_auth_role" {
+  name = "lambda_auth_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "s3_access_policy"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ]
+          Resource = [
+            "arn:aws:logs:*:*:*"
+          ]
+          Effect = "Allow"
+        },
+      ]
+    })
+  }
+}
+
+data "aws_iam_policy_document" "auth" {
+  statement {
+    sid = ""
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt",
+      "kms:GenerateDataKey",
+      "kms:Describe*",
+      "kms:List*",
+    ]
+    effect = "Allow"
+    resources = [
+      "${aws_kms_key.yahoo.arn}"
+    ]
+  }
+
+  statement {
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+    effect = "Allow"
+
+    resources = [
+      "${aws_secretsmanager_secret.secret.arn}"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "auth_policy" {
+  name        = "auth-policy"
+  description = "A lambda auth policy"
+  policy      = data.aws_iam_policy_document.auth.json
+}
+
+resource "aws_iam_role_policy_attachment" "auth-attach" {
+  role       = aws_iam_role.lambda_auth_role.name
+  policy_arn = aws_iam_policy.auth_policy.arn
+}

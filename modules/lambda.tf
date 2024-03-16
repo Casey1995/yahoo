@@ -1,13 +1,22 @@
 #Eventbridge rule schedule
 resource "aws_cloudwatch_event_rule" "every_10_minutes" {
-  name                = "every-10-minutes"
+  name                = "Every10MinutesRule"
   schedule_expression = "rate(10 minutes)"
+  tags = merge(var.map_tags, {"Name" = "Every10MinutesRule"})
 }
 
 resource "aws_cloudwatch_event_target" "invoke_lambda_every_10_minutes" {
   rule      = aws_cloudwatch_event_rule.every_10_minutes.name
   target_id = "UploadToS3Every10Minutes"
   arn       = aws_lambda_function.uploader.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_invoke" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.uploader.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.every_10_minutes.arn
 }
 
 #Lambda functions
@@ -29,8 +38,10 @@ resource "aws_lambda_function" "uploader" {
       KMS_KEY_ID = aws_kms_key.yahoo.key_id
     }
   }
+  tags = merge(var.map_tags, {"Name" = "UploadToS3Every10Minutes"})
 }
 
+#Latest Lambda functions
 data "archive_file" "latest" {
   type        = "zip"
   source_dir = "../modules/scripts/fetcher"
@@ -49,12 +60,26 @@ resource "aws_lambda_function" "latest" {
       KMS_KEY_ID = aws_kms_key.yahoo.key_id
     }
   }
+  tags = merge(var.map_tags, {"Name" = "GetMostRecentS3Object"})
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch_to_invoke" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.uploader.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.every_10_minutes.arn
+#Auth Lambda functions
+data "archive_file" "auth" {
+  type        = "zip"
+  source_dir = "../modules/scripts/authorizer"
+  output_path = "auth.zip"
+}
+
+resource "aws_lambda_function" "auth" {
+  function_name = "lambdaAuthorizer"
+  handler       = "auth.lambda_handler"
+  runtime       = "python3.9"
+  role          = aws_iam_role.lambda_auth_role.arn
+  filename      = "auth.zip"
+  environment {
+    variables = {
+      MY_SECRET_NAME = data.aws_secretsmanager_secret.secret_token.name
+    }
+  }
+  tags = merge(var.map_tags, {"Name" = "Authorizer lambda"})
 }

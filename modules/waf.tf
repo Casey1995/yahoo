@@ -39,10 +39,12 @@ resource "aws_wafv2_web_acl" "rate_limit" {
     metric_name                = "BlockedRequests"
     sampled_requests_enabled   = true
   }
+  tags = merge(var.map_tags, {"Name" = "RateLimitACL"})
 }
 
 resource "aws_cloudwatch_log_group" "waf" {
   name = "aws-waf-logs-rate-limit"
+  tags = merge(var.map_tags, {"Name" = "WAFLogs"})
 }
 
 resource "aws_wafv2_web_acl_logging_configuration" "example" {

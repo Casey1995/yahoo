@@ -27,6 +27,7 @@ resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
     Rule = aws_wafv2_web_acl.rate_limit.visibility_config[0].metric_name #"BlockedRequests"
     WebACL = aws_wafv2_web_acl.rate_limit.name
   }
+  tags = merge(var.map_tags, {"Name" = "RateLimitAlarm"})
 }
 ##########################################################################
 ## API Gateway
@@ -34,8 +35,9 @@ resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
 
 #API resource
 resource "aws_apigatewayv2_api" "http_api" {
-  name          = "yahoo-http-api"
+  name          = "CloudFrontOriginHTTPAPI"
   protocol_type = "HTTP"
+  tags = merge(var.map_tags, {"Name" = "APIGateway"})
 }
 
 #Lambda integration
@@ -86,4 +88,13 @@ resource "aws_apigatewayv2_stage" "stage" {
 resource "aws_cloudwatch_log_group" "api_log" {
   name = "/aws/apigateway/fetchs3object"
   retention_in_days = 7
+}
+
+resource "aws_apigatewayv2_authorizer" "auth" {
+  api_id                            = aws_apigatewayv2_api.http_api.id
+  authorizer_type                   = "REQUEST"
+  authorizer_uri                    = aws_lambda_function.auth.invoke_arn
+  identity_sources                  = ["$request.header.Authorization"]
+  name                              = "lambda-authorizer"
+  authorizer_payload_format_version = "2.0"
 }

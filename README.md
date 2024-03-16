@@ -56,13 +56,13 @@ Deployment Instructions - Navigate to the 'lab' directory and run the below terr
 
 NOTE - Ensure you confirm SNS subscription notification soon after deploying the SNS resources.
 
-Initialization: Navigate to your Terraform configuration directory and initialize Terraform.
-*    terraform init
-Planning: Review the changes Terraform will perform.
-*    terraform plan
-Apply: Apply the changes to set up your AWS environment.
-*    terraform apply
-Destroy (Optional): Remove all resources created by Terraform.
-*    terraform destroy
-        To successfully destroy all the resources. Ensure the S3 bucket is empty. Errors may occur when deleting S3 bucket with objects.
+## Deployment:
+Clone this repository.
+Navigate to the directory containing this Terraform configuration.
+Run terraform init to initialize the Terraform environment.
+Run terraform plan to review the changes to be applied.
+Run terraform apply to apply the changes.
+terraform destroy to remove all resources created by Terraform.
+
+NOTE - To successfully destroy all the resources. Ensure the S3 bucket is empty. Errors may occur when deleting S3 bucket with objects.
 
