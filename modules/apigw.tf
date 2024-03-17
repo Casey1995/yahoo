@@ -9,26 +9,6 @@ resource "aws_sns_topic_subscription" "rate_limit_alarm_email" {
   endpoint  = "okcnduka@gmail.com" #var.sns_endpoint #
 }
 
-#CloudWatch Alarm for Rate Limit violation
-# resource "aws_cloudwatch_metric_alarm" "rate_limit_exceeded_alarm" {
-#   alarm_name          = "RateLimitExceeded"
-#   comparison_operator = "GreaterThanOrEqualToThreshold"
-#   evaluation_periods  = "1"
-#   metric_name         = "BlockedRequests"
-#   namespace           = "AWS/WAFV2"
-#   period              = "300"
-#   statistic           = "Sum"
-#   threshold           = "1"
-#   alarm_description   = "Request rate limit is exceeded on an IP address"
-#   actions_enabled     = true
-#   alarm_actions       = [aws_sns_topic.rate_limit_alarm_topic.arn]
-#   treat_missing_data  = "notBreaching"
-#   dimensions = {
-#     Rule = aws_wafv2_web_acl.rate_limit.visibility_config[0].metric_name #"BlockedRequests"
-#     WebACL = aws_wafv2_web_acl.rate_limit.name
-#   }
-#   tags = merge(var.map_tags, {"Name" = "RateLimitAlarm"})
-# }
 ##########################################################################
 ## API Gateway
 ##########################################################################
