@@ -66,7 +66,7 @@ resource "aws_lambda_function" "latest" {
 #Auth Lambda functions
 data "archive_file" "auth" {
   type        = "zip"
-  source_dir = "../modules/scripts/authorizer"
+  source_dir = "../modules/scripts/auth"
   output_path = "auth.zip"
 }
 
