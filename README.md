@@ -1,7 +1,7 @@
 ## Requirements
-AWS Account
-Terraform installed on your local machine
-Configured AWS CLI with access keys
+- AWS Account
+- Terraform installed on your local machine
+- Configured AWS CLI with access keys
 
 ## Providers
 Name: AWS
