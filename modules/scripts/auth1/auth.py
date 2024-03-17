@@ -27,7 +27,7 @@ def lambda_handler(event, context):
 
         methodArn = f"arn:aws:execute-api:{region}:{accountId}:{apiId}/{stage}/{httpMethod}{resourcePath}"
         
-        logger.info(f"Querying with IP: {ipAddress} (Type: {type(ipAddress)}) and Time: {currenttime} (Type: {type(currenttime)})")
+        # logger.info(f"Querying with IP: {ipAddress} (Type: {type(ipAddress)}) and Time: {currenttime} (Type: {type(currenttime)})")
         response = table.query(
             KeyConditionExpression='ipAddress = :ip and currenttime = :time',
             ExpressionAttributeValues={

@@ -38,6 +38,9 @@ resource "aws_lambda_function" "uploader" {
       KMS_KEY_ID = aws_kms_key.yahoo.key_id
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
   tags = merge(var.map_tags, {"Name" = "UploadToS3Every10Minutes"})
 }
 
@@ -60,6 +63,9 @@ resource "aws_lambda_function" "latest" {
       KMS_KEY_ID = aws_kms_key.yahoo.key_id
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
   tags = merge(var.map_tags, {"Name" = "GetMostRecentS3Object"})
 }
 
@@ -80,6 +86,9 @@ resource "aws_lambda_function" "auth" {
     variables = {
       MY_SECRET_NAME = data.aws_secretsmanager_secret.secret_token.name
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
   tags = merge(var.map_tags, {"Name" = "Authorizer lambda"})
 }

@@ -61,3 +61,17 @@ data "aws_iam_policy_document" "allow_encrypted" {
     }
   }
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "rule" {
+
+  depends_on = [aws_s3_bucket_versioning.versioning_example]
+  bucket = aws_s3_bucket.yahoo_bucket.id
+  rule {
+    id = "config"
+    noncurrent_version_transition {
+      noncurrent_days = 30
+      storage_class   = "INTELLIGENT_TIERING"
+    }
+    status = "Enabled"
+  }
+}
