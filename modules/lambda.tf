@@ -41,10 +41,6 @@ resource "aws_lambda_function" "uploader" {
   tracing_config {
     mode = "Active"
   }
-  # vpc_config {
-  #   security_group_ids = [aws_security_group.allow_tls.id]
-  #   subnet_ids = [aws_subnet.my_subnet[0].id, aws_subnet.my_subnet[1].id, aws_subnet.my_subnet[2].id]
-  # }
   tags = merge(var.map_tags, {"Name" = "UploadToS3Every10Minutes"})
 }
 
@@ -70,10 +66,6 @@ resource "aws_lambda_function" "latest" {
   tracing_config {
     mode = "Active"
   }
-  # vpc_config {
-  #   security_group_ids = [aws_security_group.allow_tls.id]
-  #   subnet_ids = [aws_subnet.my_subnet[0].id, aws_subnet.my_subnet[1].id, aws_subnet.my_subnet[2].id]
-  # }
   tags = merge(var.map_tags, {"Name" = "GetMostRecentS3Object"})
 }
 
@@ -98,9 +90,5 @@ resource "aws_lambda_function" "auth" {
   tracing_config {
     mode = "Active"
   }
-  # vpc_config {
-  #   security_group_ids = [aws_security_group.allow_tls.id]
-  #   subnet_ids = [aws_subnet.my_subnet[0].id, aws_subnet.my_subnet[1].id, aws_subnet.my_subnet[2].id]
-  # }
   tags = merge(var.map_tags, {"Name" = "Authorizer lambda"})
 }
