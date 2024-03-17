@@ -4,9 +4,9 @@
 - Configured AWS CLI with access keys
 
 ## Providers
-Name: AWS
-Version: No specific AWS version was used for this configuration. Compatibility is expected for recent terraform versions.
-image.png
+- Name: AWS
+- Version: No specific AWS version was used for this configuration. Compatibility is expected for recent terraform versions.
+- image.png
 
 Local backend was used for the project.
 
@@ -28,13 +28,13 @@ All modules used are are local and sourced from the public terraform documentati
 8. **CloudWatch Alarms and Amazon Simple Notification Service (SNS):** Works in conjunction to notify via an SNS topic when a user exceeds the rate limit, triggering an alarm and denying further access as necessary.
 
 ## Additional Resources
-AWS Terraform Provider Documentation
-AWS API Gateway
-AWS Lambda
-AWS CloudWatch
-AWS SNS
-AWS DYNAMODB
-AWS KMS
+- AWS Terraform Provider Documentation
+- AWS API Gateway
+- AWS Lambda
+- AWS CloudWatch
+- AWS SNS
+- AWS DYNAMODB
+- AWS KMS
 
 ## Inputs
 No Required Inputs:
@@ -43,7 +43,7 @@ No Required Inputs:
 * http_endpoint_url - The API gateway endpoint used for service requests.
 
 ## Usage
-To root folder of this project 'project_yahoo' contains the following directories and files 'lab' 'modules' '.gitignore' 'Architectural Diagram' and a README.md file.
+The root folder of this project contains the following directories and files 'lab' 'modules' '.gitignore' 'Architectural Diagram' and a README.md file.
 The 'lab' directory contains terraform files with values local to the development environment. It references the 'modules' as it's source for resource deployment.
 In the 'modules' directory are terraform files for various AWS resoruces that will be deployed for the application project. The .tf files are names very similar after the resources it contained.
 Another directory 'scripts' exist inside the 'modules', it contains two more directories, each for the source code used to deploy the lambda functions.
@@ -51,10 +51,10 @@ Dependencies - A few libraries were used in the source code - boto3, datetime, j
 Deployment Instructions - Navigate to the 'lab' directory and run the below terraform commands after meeting the earlier stated requirements.
 NOTE - Ensure you confirm SNS subscription notification soon after deploying the SNS resources.
 
-The `project_yahoo` directory structure and its contents are organized to support the deployment and management of an AWS-based application using Terraform. Here's a concise overview:
+The `project` directory structure and its contents are organized to support the deployment and management of an AWS-based application using Terraform. Here's a concise overview:
 
 ### Project Structure:
-- **Root Folder (`project_yahoo`)**: Contains key directories and files essential for the project, including:
+- **Root Folder**: Contains key directories and files essential for the project, including:
   - `lab`: Holds Terraform configuration files specific to the development environment. It leverages resources defined in the `modules` directory for infrastructure deployment.
   - `modules`: Contains Terraform files for defining the AWS resources to be deployed as part of the application. The naming convention of the `.tf` files closely mirrors the AWS resources they represent.
     - Inside `modules`, a `scripts` subdirectory exists, which is further divided into three directories containing the source code for deploying the Lambda functions.
