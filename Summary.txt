@@ -16,6 +16,7 @@ Alternative services for implementing rate limiting and compare them with the La
 
 - **Rate Limiting with CloudFront and WAF**: You can implement rate limiting using AWS WAF by creating a rate-based rule that tracks the number of requests coming from a single IP address and blocks further requests once a threshold is exceeded within a specified time period. This rule can be associated with a CloudFront distribution to protect content delivered through CDN.
 - **Considerations**: While CloudFront and WAF provide robust security and content delivery features, including rate limiting, they may introduce more complexity and cost to your solution. AWS WAF incurs charges based on the number of rules you deploy and the amount of web requests your application receives. When combined with CloudFront, you also pay for the data transfer and requests handled by the CDN. For small to medium-sized solutions, or where the primary requirement is rate limiting without the need for global content delivery, this setup might be overkill.
+- **REST-API supports direct client-side throttling but HTTP-API was specified.
 
 ### EC2 Instances for Rate Limiting
 **Amazon EC2 (Elastic Compute Cloud)** instances provide resizable compute capacity in the cloud. They allow you to run servers and scale computing capacity as needed.
@@ -36,7 +37,7 @@ While CloudFront and WAF provide powerful, managed solutions for rate limiting w
 Use CloudWatch Dashboards to create a unified view of the resources and metrics that matter most. A dashboard can visualize the health and performance of the entire solution, allowing you to spot trends and issues at a glance.
 
 ## Disaster Recovery Consideration
-* This solution is NOT multi region deployed. However, for a robust DR consideration, deploy solution across multiple AWS regions. This includes replicating your API Gateway setup, Lambda functions, DynamoDB tables, S3 buckets, and other resources used across at least two regions. Use Iac tool to manage infrastructure as code, ensuring consistent deployments across regions.
+* This solution is NOT a multi region implementation. However, for a robust DR consideration, deploy solution across multiple AWS regions. This includes replicating your API Gateway setup, Lambda functions, DynamoDB tables, S3 buckets, and other resources used across at least two regions. Use Iac tool to manage infrastructure as code, ensuring consistent deployments across regions.
 * Enable Cross-Region Replication (CRR) for your S3 buckets to automatically replicate objects across buckets in different AWS regions. Remember to use Multi Region Keys for encryption.
 * Utilize DynamoDB Global Tables for automatic data replication across multiple regions. This ensures your rate-limiting data is up-to-date in all regions. Ensure automated backups for DynamoDB using point-in-time recovery (PITR). Document and automate the restore process to reduce recovery time.
 * Use Amazon Route 53 to manage DNS and route traffic to the appropriate regional endpoint based on health checks and geographic location.

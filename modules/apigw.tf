@@ -93,6 +93,10 @@ resource "aws_apigatewayv2_stage" "stage" {
     destination_arn = aws_cloudwatch_log_group.api_log.arn
     format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"requestTime\":\"$context.requestTime\",\"httpMethod\":\"$context.httpMethod\",\"status\":\"$context.status\",\"protocol\":\"$context.protocol\",\"responseLength\":\"$context.responseLength\"}"
   }
+  default_route_settings {
+    throttling_burst_limit = 1000
+    throttling_rate_limit  = 1260
+  }
 }
 
 #CloudWatch logging
