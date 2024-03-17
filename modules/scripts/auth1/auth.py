@@ -11,7 +11,6 @@ cloudwatch = boto3.client('cloudwatch')
 table = dynamodb.Table('RateLimitTable')
 
 def lambda_handler(event, context):
-    print("Received event:", json.dumps(event))
     try:
         ipAddress = event['identitySource']
         ipAddress = ipAddress[0]
