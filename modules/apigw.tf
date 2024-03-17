@@ -110,3 +110,11 @@ resource "aws_apigatewayv2_authorizer" "auth" {
   authorizer_payload_format_version = "2.0"
   authorizer_result_ttl_in_seconds  = 0
 }
+
+# resource "aws_apigatewayv2_vpc_link" "vpc" {
+#   name               = "VPC-Connect"
+#   security_group_ids = [aws_security_group.allow_tls.id]
+#   subnet_ids         = [aws_subnet.my_subnet[0].id, aws_subnet.my_subnet[1].id, aws_subnet.my_subnet[2].id]
+
+#   tags = merge(var.map_tags, {"Name" = "VPC-Connect"})
+# }

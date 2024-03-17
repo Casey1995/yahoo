@@ -61,6 +61,17 @@ data "aws_iam_policy_document" "lambda" {
       "${aws_s3_bucket.yahoo_bucket.arn}/*"
     ]
   }
+  statement {
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "upload_policy" {
@@ -139,6 +150,17 @@ data "aws_iam_policy_document" "fetch" {
       "${aws_s3_bucket.yahoo_bucket.arn}/*"
     ]
   }
+  statement {
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "fetch_policy" {
@@ -213,6 +235,17 @@ data "aws_iam_policy_document" "auth" {
     effect = "Allow"
     resources = [
       "arn:aws:cloudwatch:*"
+    ]
+  }
+  statement {
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
     ]
   }
 }
