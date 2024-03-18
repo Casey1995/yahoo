@@ -42,15 +42,6 @@ No Required Inputs:
 ## Outputs
 * http_endpoint_url - The API gateway endpoint used for service requests.
 
-## Usage
-The root folder of this project contains the following directories and files 'lab' 'modules' '.gitignore' 'Architectural Diagram' and a README.md file.
-The 'lab' directory contains terraform files with values local to the development environment. It references the 'modules' as it's source for resource deployment.
-In the 'modules' directory are terraform files for various AWS resoruces that will be deployed for the application project. The .tf files are names very similar after the resources it contained.
-Another directory 'scripts' exist inside the 'modules', it contains two more directories, each for the source code used to deploy the lambda functions.
-Dependencies - A few libraries were used in the source code - boto3, datetime, json, os, ClientError.
-Deployment Instructions - Navigate to the 'lab' directory and run the below terraform commands after meeting the earlier stated requirements.
-NOTE - Ensure you confirm SNS subscription notification soon after deploying the SNS resources.
-
 The `project` directory structure and its contents are organized to support the deployment and management of an AWS-based application using Terraform. Here's a concise overview:
 
 ### Project Repo Structure:
@@ -71,7 +62,7 @@ The `project` directory structure and its contents are organized to support the 
 - The application's Lambda functions rely on several libraries, including `boto3` for AWS SDK operations, `datetime` for handling dates and times, `json` for JSON parsing, `os` for interacting with the operating system, and handling of `ClientError` exceptions.
 
 ### Deployment Instructions:
-- To deploy the application's infrastructure, users are instructed to clone the `DEVELOP` branch of this git repository to a local machine, navigate to the `lab` directory. From there, they should run Terraform commands to initialize the configuration, plan the deployment, and apply the changes to create the resources in AWS.
+- To deploy the application's infrastructure, users are instructed to clone the `main` branch of this git repository to a local machine, navigate to the `lab` directory. From there, they should run Terraform commands to initialize the configuration, plan the deployment, and apply the changes to create the resources in AWS.
 - A note emphasizes the importance of confirming the SNS subscription notification after deploying SNS resources, ensuring that the notification system is fully operational.
 
 ## Destruction Instructions:
