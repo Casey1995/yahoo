@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "yahoo_bucket" {
   bucket = "yahoo-bucket-03182024"
+  tags = merge(var.map_tags, {"Name" = "Yahoo-Bucket-03182024"})
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
