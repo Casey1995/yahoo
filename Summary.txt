@@ -55,16 +55,16 @@ Use CloudWatch Dashboards to create a unified view of the resources and metrics 
 Operational Excellence, Security, Reliability, Performance Efficiency, and Cost Optimization.
 
 ### Operational Excellence
-* By using EventBridge for scheduling, Lambda for serverless computing, and DynamoDB for data storage, the solution automates operational tasks, such as file generation and rate limiting, enhancing operational efficiency. Automated notifications and utilizing CloudWatch for monitoring and logging enables the tracking of application health and performance, facilitating quick responses to operational issues.
+* By using EventBridge for scheduling, Lambda for serverless computing, and DynamoDB for data storage, the solution automates operational tasks, such as file generation and rate limiting, data prunning, enhancing operational efficiency. 
+Automated notifications and utilizing CloudWatch for monitoring and logging enables the tracking of application health and performance, facilitating quick responses to operational issues.
 
 ### Security
 * Leveraging AWS KMS for encryption ensures that the generated text files are encrypted at rest, enhancing data security.
 * Implementing role-based access control and using IAM roles with minimal necessary permissions for Lambda functions and other services adhere to the principle of least privilege.
-* custom Lambda authorizer for API Gateway enforces strict access control, and manage resource utilization with rate limits.
-* The use of private link for communication between resources in the VPC.
+* Custom Lambda authorizer for API Gateway enforces strict access control, and manage resource utilization with rate limits.
 
 ### Reliability
-* Lambda function is a fully managed service that can run your code from any availability zone or region specified.
+* Lambda function is a fully managed service that can run your code from any availability zone or region specified. It scales automatically to handle increased traffif.
 * S3 Versioning to enable recovery from accidental deletion of s3 objects.
 
 ### Performance Efficiency
