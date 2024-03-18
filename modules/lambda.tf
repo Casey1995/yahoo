@@ -38,6 +38,9 @@ resource "aws_lambda_function" "uploader" {
       KMS_KEY_ID = aws_kms_key.yahoo.key_id
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
   tags = merge(var.map_tags, {"Name" = "UploadToS3Every10Minutes"})
 }
 
@@ -60,13 +63,16 @@ resource "aws_lambda_function" "latest" {
       KMS_KEY_ID = aws_kms_key.yahoo.key_id
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
   tags = merge(var.map_tags, {"Name" = "GetMostRecentS3Object"})
 }
 
 #Auth Lambda functions
 data "archive_file" "auth" {
   type        = "zip"
-  source_dir = "../modules/scripts/authorizer"
+  source_dir = "../modules/scripts/auth1"
   output_path = "auth.zip"
 }
 
@@ -76,10 +82,8 @@ resource "aws_lambda_function" "auth" {
   runtime       = "python3.9"
   role          = aws_iam_role.lambda_auth_role.arn
   filename      = "auth.zip"
-  environment {
-    variables = {
-      MY_SECRET_NAME = data.aws_secretsmanager_secret.secret_token.name
-    }
+  tracing_config {
+    mode = "Active"
   }
   tags = merge(var.map_tags, {"Name" = "Authorizer lambda"})
 }

@@ -1,6 +1,5 @@
 resource "aws_iam_role" "lambda_upload_role" {
   name = "lambda_upload_role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -14,7 +13,6 @@ resource "aws_iam_role" "lambda_upload_role" {
       },
     ]
   })
-
   inline_policy {
     name = "s3_access_policy"
     policy = jsonencode({
@@ -51,7 +49,6 @@ data "aws_iam_policy_document" "lambda" {
       "${aws_kms_key.yahoo.arn}"
     ]
   }
-
   statement {
     actions = [
       "s3:PutObject",
@@ -59,10 +56,20 @@ data "aws_iam_policy_document" "lambda" {
       "s3:ListBucket"
     ]
     effect = "Allow"
-
     resources = [
       "${aws_s3_bucket.yahoo_bucket.arn}",
       "${aws_s3_bucket.yahoo_bucket.arn}/*"
+    ]
+  }
+  statement {
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
     ]
   }
 }
@@ -82,7 +89,6 @@ resource "aws_iam_role_policy_attachment" "lambda-attach" {
 
 resource "aws_iam_role" "lambda_fetch_role" {
   name = "lambda_fetch_role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -96,7 +102,6 @@ resource "aws_iam_role" "lambda_fetch_role" {
       },
     ]
   })
-
   inline_policy {
     name = "s3_access_policy"
     policy = jsonencode({
@@ -133,7 +138,6 @@ data "aws_iam_policy_document" "fetch" {
       "${aws_kms_key.yahoo.arn}"
     ]
   }
-
   statement {
     actions = [
       "s3:GetObject",
@@ -141,10 +145,20 @@ data "aws_iam_policy_document" "fetch" {
       "s3:ListBucket"
     ]
     effect = "Allow"
-
     resources = [
       "${aws_s3_bucket.yahoo_bucket.arn}",
       "${aws_s3_bucket.yahoo_bucket.arn}/*"
+    ]
+  }
+  statement {
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
     ]
   }
 }
@@ -162,7 +176,6 @@ resource "aws_iam_role_policy_attachment" "fetch-attach" {
 
 resource "aws_iam_role" "lambda_auth_role" {
   name = "lambda_auth_role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -202,26 +215,37 @@ data "aws_iam_policy_document" "auth" {
   statement {
     sid = ""
     actions = [
-      "kms:Decrypt",
-      "kms:Encrypt",
-      "kms:GenerateDataKey",
-      "kms:Describe*",
-      "kms:List*",
+      "dynamodb:PutItem",
+      "dynamodb:GetItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:Scan",
+      "dynamodb:Query",
+      "dynamodb:UpdateItem"
     ]
     effect = "Allow"
     resources = [
-      "${aws_kms_key.yahoo.arn}"
+      "${aws_dynamodb_table.rate_limit.arn}"
     ]
   }
-
   statement {
+    sid = ""
     actions = [
-      "secretsmanager:GetSecretValue"
+      "cloudwatch:PutMetricData"
     ]
     effect = "Allow"
-
     resources = [
-      "${aws_secretsmanager_secret.secret.arn}"
+      "arn:aws:cloudwatch:*"
+    ]
+  }
+  statement {
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
     ]
   }
 }

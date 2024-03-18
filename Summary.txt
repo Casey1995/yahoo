@@ -1,0 +1,76 @@
+### Solution Overview
+This solution leverages multiple AWS services to create, encrypt, and serve text files, with a focus on security and rate limiting to manage access.
+The solution automatically generates a text file every 10 minutes, applies a timestamp, encrypts it using AWS Key Management Service (KMS), and stores it in an Amazon Simple Storage Service (S3) bucket. 
+It restricts file access via an API Gateway (HTTP) endpoint, limiting requests to 210 per IP address every 10 minutes. 
+The AWS public cloud hosts this solution, incorporating various services for scheduling, storage, encryption, request handling, authorization, logging, and notifications.
+
+### Solution Flow
+1. **File Generation and Storage:** Every 10 minutes, EventBridge triggers a Lambda function to create, encrypt, and upload a new text file to S3.
+2. **Request Handling and Rate Limiting:** DynamoDB table keeps a record of requesting IP addresses with a TTL of 10 minutes. When a file is requested via the API Gateway, the authorizer Lambda function checks the requesting IP address by querying the DynamoDB table. 
+If the requesting IP address count is under the 210 limit, the latest file is fetched from S3, decrypted, and served. Otherwise, access is denied.
+3. **Logging and Notifications:** All transactions are logged to CloudWatch, and any rate limit exceedances trigger an alarm, sending a notification through SNS.
+
+This architecture showcases a scalable, secure method for file management and distribution, emphasizing automated processes, encryption for security, and effective request rate limiting to prevent abuse.
+
+## Alternatives
+Alternative services for implementing rate limiting and compare them with the Lambda function approach, highlighting why Lambda might be more efficient for this particular solution.
+### CloudFront and WAF for Rate Limiting
+**Amazon CloudFront** is a content delivery network (CDN) service that securely delivers data, videos, applications, and APIs to customers globally with low latency and high transfer speeds. 
+**AWS WAF (Web Application Firewall)** is a web application firewall that helps protect web applications or APIs against common web exploits and bots that may affect availability, compromise security, or consume excessive resources.
+
+- **Rate Limiting with CloudFront and WAF**: You can implement rate limiting using AWS WAF by creating a rate-based rule that tracks the number of requests coming from a single IP address and blocks further requests once a threshold is exceeded within a specified time period. 
+This rule can be associated with a CloudFront distribution to protect content delivered through CDN.
+- **Considerations**: While CloudFront and WAF provide robust security and content delivery features, including rate limiting, they may introduce more complexity and cost to your solution. AWS WAF incurs charges based on the number of rules you deploy and the amount of web requests your application receives. 
+When combined with CloudFront, you also pay for the data transfer and requests handled by the CDN. For small to medium-sized solutions, or where the primary requirement is rate limiting without the need for global content delivery, this setup might be overkill.
+- **REST-API supports direct client-side throttling but HTTP-API was specified.
+
+### EC2 Instances for Rate Limiting
+**Amazon EC2 (Elastic Compute Cloud)** instances provide resizable compute capacity in the cloud. They allow you to run servers and scale computing capacity as needed.
+
+- **Rate Limiting with EC2**: Implementing rate limiting on EC2 instances would typically involve configuring your application or web server (e.g., Nginx, Apache) with specific rate limiting rules. This approach gives you granular control over the rate limiting logic but requires managing the underlying infrastructure, including server setup, scaling, and security.
+- **Considerations**: EC2 instances offer the most flexibility since you can run any software and implement any logic you need. However, they also require the most management and can incur higher costs, especially if you need to scale out to handle high traffic. You're responsible for managing the server's lifecycle, including scaling, patching, and securing the instances.
+
+### Lambda for Rate Limiting
+**AWS Lambda** allows you to run code without provisioning or managing servers. You pay only for the compute time you consume, making it a cost-effective way to run applications.
+
+- **Efficiency of Lambda**: Using Lambda functions for tasks like generating files, handling requests, and implementing rate limiting can be more efficient and cost-effective, especially for workloads with variable traffic. Lambda functions scale automatically, and you don't need to manage any servers. 
+The rate limiting logic, as implemented via a Lambda authorizer or within the function itself, can be tightly integrated with API Gateway, simplifying deployment and management.
+- **Considerations**: While Lambda simplifies many aspects of application deployment and scalability, implementing rate limiting within a Lambda function does require custom coding and management of state (e.g., request counts) in an external service like DynamoDB as used here. However, this approach offers a good balance between flexibility, cost, and ease of management for many use cases.
+
+### Conclusion
+While CloudFront and WAF provide powerful, managed solutions for rate limiting with additional benefits like DDoS protection and global content delivery, they may introduce additional cost and complexity not warranted for all projects. EC2 instances offer the most control but require significant management and can be less cost-effective for fluctuating workloads. 
+Lambda functions strike a balance by offering serverless execution, automatic scaling, and a pay-for-what-you-use model, making them an efficient choice for scenarios described in the solution, especially when combined with AWS-native services like API Gateway and DynamoDB for seamless integration and management.
+
+## Recommandations - Implement Dashboard for Visualization
+Use CloudWatch Dashboards to create a unified view of the resources and metrics that matter most. A dashboard can visualize the health and performance of the entire solution, allowing you to spot trends and issues at a glance.
+
+## Disaster Recovery Consideration
+* This solution is NOT a multi region implementation. However, for a robust DR consideration, deploy solution across multiple AWS regions. This includes replicating your API Gateway setup, Lambda functions, DynamoDB tables, S3 buckets, and other resources used across at least two regions. Use Iac tool to manage infrastructure as code, ensuring consistent deployments across regions.
+* Enable Cross-Region Replication (CRR) for your S3 buckets to automatically replicate objects across buckets in different AWS regions. Remember to use Multi Region Keys for encryption.
+* Utilize DynamoDB Global Tables for automatic data replication across multiple regions. This ensures your rate-limiting data is up-to-date in all regions. Ensure automated backups for DynamoDB using point-in-time recovery (PITR). Document and automate the restore process to reduce recovery time.
+* Use Amazon Route 53 to manage DNS and route traffic to the appropriate regional endpoint based on health checks and geographic location.
+* Replicate your Lambda functions across regions. You can automate this process using CI/CD pipelines to ensure that any updates to your functions are consistently deployed across all regions.
+
+## Compliance with AWS Well-Architected Framework.
+Operational Excellence, Security, Reliability, Performance Efficiency, and Cost Optimization.
+
+### Operational Excellence
+* By using EventBridge for scheduling, Lambda for serverless computing, and DynamoDB for data storage, the solution automates operational tasks, such as file generation and rate limiting, enhancing operational efficiency. Automated notifications and utilizing CloudWatch for monitoring and logging enables the tracking of application health and performance, facilitating quick responses to operational issues.
+
+### Security
+* Leveraging AWS KMS for encryption ensures that the generated text files are encrypted at rest, enhancing data security.
+* Implementing role-based access control and using IAM roles with minimal necessary permissions for Lambda functions and other services adhere to the principle of least privilege.
+* custom Lambda authorizer for API Gateway enforces strict access control, and manage resource utilization with rate limits.
+* The use of private link for communication between resources in the VPC.
+
+### Reliability
+* Lambda function is a fully managed service that can run your code from any availability zone or region specified.
+* S3 Versioning to enable recovery from accidental deletion of s3 objects.
+
+### Performance Efficiency
+* Leveraging serverless services like Lambda, DynamoDB, and S3 ensures that resources are efficiently allocated and scaled automatically based on demand, optimizing performance.
+
+### Cost Optimization
+* The solution's reliance on serverless computing and managed services follows a pay-as-you-go pricing model, ensuring you only pay for the resources you use, which can lead to significant cost savings.
+* Using EventBridge to trigger Lambda functions on a schedule avoids unnecessary executions, and DynamoDB's ttl setting ensures that data are not kept beyond it's usage.
+* The use of S3 Lifecycle rule to manage object storage classes.

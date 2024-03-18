@@ -7,3 +7,5 @@
 
 #Local .terraform directories
 **/.terraform/*
+.terraform
+.DS_Store
