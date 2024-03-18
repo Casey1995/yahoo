@@ -42,15 +42,6 @@ No Required Inputs:
 ## Outputs
 * http_endpoint_url - The API gateway endpoint used for service requests.
 
-## Usage
-The root folder of this project contains the following directories and files 'lab' 'modules' '.gitignore' 'Architectural Diagram' and a README.md file.
-The 'lab' directory contains terraform files with values local to the development environment. It references the 'modules' as it's source for resource deployment.
-In the 'modules' directory are terraform files for various AWS resoruces that will be deployed for the application project. The .tf files are names very similar after the resources it contained.
-Another directory 'scripts' exist inside the 'modules', it contains two more directories, each for the source code used to deploy the lambda functions.
-Dependencies - A few libraries were used in the source code - boto3, datetime, json, os, ClientError.
-Deployment Instructions - Navigate to the 'lab' directory and run the below terraform commands after meeting the earlier stated requirements.
-NOTE - Ensure you confirm SNS subscription notification soon after deploying the SNS resources.
-
 The `project` directory structure and its contents are organized to support the deployment and management of an AWS-based application using Terraform. Here's a concise overview:
 
 ### Project Repo Structure:
