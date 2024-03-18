@@ -82,11 +82,6 @@ resource "aws_lambda_function" "auth" {
   runtime       = "python3.9"
   role          = aws_iam_role.lambda_auth_role.arn
   filename      = "auth.zip"
-  environment {
-    variables = {
-      MY_SECRET_NAME = data.aws_secretsmanager_secret.secret_token.name
-    }
-  }
   tracing_config {
     mode = "Active"
   }
