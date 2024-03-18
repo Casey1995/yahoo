@@ -53,14 +53,19 @@ NOTE - Ensure you confirm SNS subscription notification soon after deploying the
 
 The `project` directory structure and its contents are organized to support the deployment and management of an AWS-based application using Terraform. Here's a concise overview:
 
-### Project Structure:
-- **Root Folder**: Contains key directories and files essential for the project, including:
-  - `lab`: Holds Terraform configuration files specific to the development environment. It leverages resources defined in the `modules` directory for infrastructure deployment.
-  - `modules`: Contains Terraform files for defining the AWS resources to be deployed as part of the application. The naming convention of the `.tf` files closely mirrors the AWS resources they represent.
-    - Inside `modules`, a `scripts` subdirectory exists, which is further divided into three directories containing the source code for deploying the Lambda functions.
-  - `.gitignore`: A Git configuration file used to exclude files and directories from version control.
-  - `Architectural Diagram`: Provides a visual representation of the application's infrastructure architecture.
-  - `README.md`: Offers detailed information about the project, including an overview, setup instructions, and any additional notes relevant to users or developers.
+### Project Repo Structure:
+`/lab`
+* This directory holds Terraform configuration files specific to the development environment. It leverages resources defined in the `modules` directory for infrastructure deployment.
+`/modules`
+* This directory contains Terraform files for defining the AWS resources to be deployed as part of the application. The naming convention of the `.tf` files closely mirrors the AWS resources they represent.
+    `/scripts`
+    * This is a subdirectory of the `module` which is subdivided into `3` different directories/files `/auth1/auth.py`, `/fetcher/latestFetcher.py`, and `/uploader/objectUploader.py` containing the source code for deploying the Lambda functions.
+`/.gitignore`
+* A Git configuration file used to exclude files and directories from version control.
+`Architectural Diagram`
+* This file provides a visual representation of the application's infrastructure architecture.
+`README.md`
+* This file offers detailed information about the project, including an overview, setup instructions, and any additional notes relevant to users or developers.
 
 ### Dependencies:
 - The application's Lambda functions rely on several libraries, including `boto3` for AWS SDK operations, `datetime` for handling dates and times, `json` for JSON parsing, `os` for interacting with the operating system, and handling of `ClientError` exceptions.
