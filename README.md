@@ -62,7 +62,7 @@ The `project` directory structure and its contents are organized to support the 
 - The application's Lambda functions rely on several libraries, including `boto3` for AWS SDK operations, `datetime` for handling dates and times, `json` for JSON parsing, `os` for interacting with the operating system, and handling of `ClientError` exceptions.
 
 ### Deployment Instructions:
-- To deploy the application's infrastructure, users are instructed to clone the `DEVELOP` branch of this git repository to a local machine, navigate to the `lab` directory. From there, they should run Terraform commands to initialize the configuration, plan the deployment, and apply the changes to create the resources in AWS.
+- To deploy the application's infrastructure, users are instructed to clone the `main` branch of this git repository to a local machine, navigate to the `lab` directory. From there, they should run Terraform commands to initialize the configuration, plan the deployment, and apply the changes to create the resources in AWS.
 - A note emphasizes the importance of confirming the SNS subscription notification after deploying SNS resources, ensuring that the notification system is fully operational.
 
 ## Destruction Instructions:
