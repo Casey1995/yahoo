@@ -11,7 +11,7 @@
 Local backend was used for the project.
 
 ## Modules
-This Terraform module contains configuration that sets up an AWS environment with several key components for a Public Facing Web Stack, including API Gateway, AWS Lambda functions, AWS CloudFront distribution with WAF for rate limiting, S3 bucket for storage, KMS keys for encryption, CloudWatch for logging and monitoring, and SNS for notifications.
+This Terraform module contains configuration that sets up an AWS environment with several key components for a Public Facing Web Stack, including API Gateway, AWS Lambda functions, DynamoDB, S3 bucket for storage, KMS keys for encryption, EventBridge for job scheduling, CloudWatch for logging and monitoring, and SNS for notifications.
 All modules used are are local and sourced from the public terraform documentation: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
 
 ### AWS Services Used
@@ -45,18 +45,20 @@ No Required Inputs:
 The `project` directory structure and its contents are organized to support the deployment and management of an AWS-based application using Terraform. Here's a concise overview:
 
 ### Project Repo Structure:
-`/lab`
+- `/lab`
 * This directory holds Terraform configuration files specific to the development environment. It leverages resources defined in the `modules` directory for infrastructure deployment.
-`/modules`
+- `/modules`
 * This directory contains Terraform files for defining the AWS resources to be deployed as part of the application. The naming convention of the `.tf` files closely mirrors the AWS resources they represent.
-    `/scripts`
+    - `/scripts`
     * This is a subdirectory of the `module` which is subdivided into `3` different directories/files `/auth1/auth.py`, `/fetcher/latestFetcher.py`, and `/uploader/objectUploader.py` containing the source code for deploying the Lambda functions.
-`/.gitignore`
+- `/.gitignore`
 * A Git configuration file used to exclude files and directories from version control.
-`Architectural Diagram`
+- `Architectural Diagram`
 * This file provides a visual representation of the application's infrastructure architecture.
-`README.md`
+- `README.md`
 * This file offers detailed information about the project, including an overview, setup instructions, and any additional notes relevant to users or developers.
+- `Summary.txt`
+* A text file that provides summary of the implemented solution.
 
 ### Dependencies:
 - The application's Lambda functions rely on several libraries, including `boto3` for AWS SDK operations, `datetime` for handling dates and times, `json` for JSON parsing, `os` for interacting with the operating system, and handling of `ClientError` exceptions.
