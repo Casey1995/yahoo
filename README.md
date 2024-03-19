@@ -11,7 +11,7 @@
 Local backend was used for the project.
 
 ## Modules
-This Terraform module contains configuration that sets up an AWS environment with several key components for a Public Facing Web Stack, including API Gateway, AWS Lambda functions, AWS CloudFront distribution with WAF for rate limiting, S3 bucket for storage, KMS keys for encryption, CloudWatch for logging and monitoring, and SNS for notifications.
+This Terraform module contains configuration that sets up an AWS environment with several key components for a Public Facing Web Stack, including API Gateway, AWS Lambda functions, DynamoDB, S3 bucket for storage, KMS keys for encryption, EventBridge for job scheduling, CloudWatch for logging and monitoring, and SNS for notifications.
 All modules used are are local and sourced from the public terraform documentation: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
 
 ### AWS Services Used
